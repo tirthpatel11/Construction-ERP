@@ -1,0 +1,332 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ project.name }} - SiteSphere{% endblock %}
+
+{% block page_title %}{{ project.name }}{% endblock %}
+
+{% block content %}
+<!-- Project Header -->
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="d-flex align-items-center mb-2">
+            <span class="badge bg-{% if project.status == 'active' %}success{% elif project.status == 'completed' %}primary{% elif project.status == 'on_hold' %}warning{% else %}secondary{% endif %} me-3">
+                {{ project.get_status_display }}
+            </span>
+            <span class="text-muted">Created {{ project.created_at|date:"M d, Y" }}</span>
+        </div>
+        <p class="text-muted mb-1">
+            <i class="fas fa-building me-2"></i>
+            {{ project.company_name }}
+        </p>
+        <p class="text-muted">
+            <i class="fas fa-map-marker-alt me-2"></i>
+            {{ project.project_address }}
+        </p>
+    </div>
+    <div class="col-md-4 text-end">
+        <div class="btn-group">
+            <button class="btn btn-outline-primary">
+                <i class="fas fa-edit me-2"></i>
+                Edit Project
+            </button>
+            <button class="btn btn-outline-secondary">
+                <i class="fas fa-download me-2"></i>
+                Export
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Key Metrics -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <i class="fas fa-percentage fa-2x mb-2"></i>
+                <h3 class="mb-1">{{ project.completion_percentage }}%</h3>
+                <p class="mb-0">Completion</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card success">
+            <div class="card-body text-center">
+                <i class="fas fa-dollar-sign fa-2x mb-2"></i>
+                <h3 class="mb-1">${{ project.estimated_budget|floatformat:0 }}</h3>
+                <p class="mb-0">Budget</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card {% if project.actual_cost > project.estimated_budget %}danger{% else %}warning{% endif %}">
+            <div class="card-body text-center">
+                <i class="fas fa-credit-card fa-2x mb-2"></i>
+                <h3 class="mb-1">${{ project.actual_cost|floatformat:0 }}</h3>
+                <p class="mb-0">Spent</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card {% if profit_margin > 0 %}success{% else %}danger{% endif %}">
+            <div class="card-body text-center">
+                <i class="fas fa-chart-line fa-2x mb-2"></i>
+                <h3 class="mb-1">{{ profit_margin|floatformat:1 }}%</h3>
+                <p class="mb-0">Profit Margin</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts and Analytics -->
+<div class="row mb-4">
+    <!-- Project Timeline -->
+    <div class="col-md-6 mb-3">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-timeline me-2 text-primary"></i>
+                    Project Timeline
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if timeline_events %}
+                    {% for event in timeline_events %}
+                    <div class="timeline-item {% if event.is_completed %}completed{% endif %}">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-1">{{ event.title }}</h6>
+                                <p class="text-muted mb-1">{{ event.description|truncatechars:100 }}</p>
+                                <small class="text-muted">{{ event.date|date:"M d, Y" }}</small>
+                            </div>
+                            {% if event.is_milestone %}
+                            <span class="badge bg-warning">Milestone</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                <p class="text-muted text-center">No timeline events yet</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Budget vs Actual Chart -->
+    <div class="col-md-6 mb-3">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-bar me-2 text-primary"></i>
+                    Budget Analysis
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="budgetChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Partners and Payments -->
+<div class="row mb-4">
+    <!-- Project Partners -->
+    <div class="col-md-6 mb-3">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-users me-2 text-primary"></i>
+                    Project Partners
+                </h5>
+            </div>
+            <div class="card-body">
+                {% for partner in partners %}
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                            <i class="fas fa-user text-white"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-0">{{ partner.name }}</h6>
+                            <small class="text-muted">Age: {{ partner.age }} | {{ partner.phone_number }}</small>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge bg-primary">{{ partner.proportion }}%</span>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-muted text-center">No partners added</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Pending Payments -->
+    <div class="col-md-6 mb-3">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-clock me-2 text-primary"></i>
+                    Pending Payments
+                </h5>
+            </div>
+            <div class="card-body">
+                {% for payment in pending_payments %}
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div>
+                        <h6 class="mb-1">{{ payment.description }}</h6>
+                        <small class="text-muted">Due: {{ payment.due_date|date:"M d, Y" }}</small>
+                    </div>
+                    <div class="text-end">
+                        <div class="fw-bold text-success">${{ payment.amount }}</div>
+                        <span class="badge bg-warning">{{ payment.get_status_display }}</span>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-muted text-center">No pending payments</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Expense Breakdown -->
+<div class="row">
+    <div class="col-md-8 mb-3">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-receipt me-2 text-primary"></i>
+                    Recent Expenses
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if expenses %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Description</th>
+                                <th>Amount</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for expense in expenses|slice:":10" %}
+                            <tr>
+                                <td>
+                                    <span class="badge bg-secondary">{{ expense.get_category_display }}</span>
+                                </td>
+                                <td>{{ expense.description }}</td>
+                                <td class="fw-bold">${{ expense.amount }}</td>
+                                <td>{{ expense.date|date:"M d, Y" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted text-center">No expenses recorded</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Expense Categories Donut -->
+    <div class="col-md-4 mb-3">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-pie me-2 text-primary"></i>
+                    Expense Categories
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="expenseChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Budget vs Actual Chart
+const ctx1 = document.getElementById('budgetChart').getContext('2d');
+new Chart(ctx1, {
+    type: 'bar',
+    data: {
+        labels: ['Budget', 'Actual Spent', 'Remaining'],
+        datasets: [{
+            data: [
+                {{ project.estimated_budget }},
+                {{ project.actual_cost }},
+                {{ project.estimated_budget }} - {{ project.actual_cost }}
+            ],
+            backgroundColor: [
+                '#2563eb',
+                '{% if project.actual_cost > project.estimated_budget %}#ef4444{% else %}#10b981{% endif %}',
+                '#f59e0b'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    callback: function(value) {
+                        return '$' + value.toLocaleString();
+                    }
+                }
+            }
+        }
+    }
+});
+
+// Expense Categories Chart
+fetch('{% url "projects:analytics" project.id %}')
+    .then(response => response.json())
+    .then(data => {
+        const ctx2 = document.getElementById('expenseChart').getContext('2d');
+        new Chart(ctx2, {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(data.expense_breakdown),
+                datasets: [{
+                    data: Object.values(data.expense_breakdown),
+                    backgroundColor: [
+                        '#2563eb',
+                        '#10b981',
+                        '#f59e0b',
+                        '#ef4444',
+                        '#8b5cf6',
+                        '#06b6d4'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

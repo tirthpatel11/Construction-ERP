@@ -1,0 +1,367 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - SiteSphere{% endblock %}
+
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <i class="fas fa-project-diagram fa-2x mb-2"></i>
+                <h3 class="mb-1">{{ total_projects }}</h3>
+                <p class="mb-0">Total Projects</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card success">
+            <div class="card-body text-center">
+                <i class="fas fa-play-circle fa-2x mb-2"></i>
+                <h3 class="mb-1">{{ active_projects }}</h3>
+                <p class="mb-0">Active Projects</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card warning">
+            <div class="card-body text-center">
+                <i class="fas fa-dollar-sign fa-2x mb-2"></i>
+                <h3 class="mb-1">${{ total_budget|floatformat:0 }}</h3>
+                <p class="mb-0">Total Budget</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card danger">
+            <div class="card-body text-center">
+                <i class="fas fa-chart-line fa-2x mb-2"></i>
+                <h3 class="mb-1">{{ budget_utilization|floatformat:1 }}%</h3>
+                <p class="mb-0">Budget Used</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row mb-4">
+    <!-- Cash Flow Chart -->
+    <div class="col-md-8 mb-3">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-line me-2 text-primary"></i>
+                    Cash Flow Analysis
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="cashFlowChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Cost Breakdown Donut Chart -->
+    <div class="col-md-4 mb-3">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-pie me-2 text-primary"></i>
+                    Cost Breakdown
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="costBreakdownChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Project Completion & Resource Utilization -->
+<div class="row mb-4">
+    <!-- Project Completion Progress -->
+    <div class="col-md-6 mb-3">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-tasks me-2 text-primary"></i>
+                    Project Completion Status
+                </h5>
+            </div>
+            <div class="card-body">
+                {% for project in recent_projects %}
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="fw-semibold">{{ project.name }}</span>
+                        <span class="badge bg-primary">{{ project.completion_percentage }}%</span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar" role="progressbar" style="width: {{ project.completion_percentage }}%"></div>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-muted text-center">No projects found</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Resource Utilization Heatmap -->
+    <div class="col-md-6 mb-3">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-fire me-2 text-primary"></i>
+                    Resource Utilization
+                </h5>
+            </div>
+            <div class="card-body">
+                <div id="heatmapContainer" class="heatmap-container"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity & Upcoming Payments -->
+<div class="row">
+    <!-- Recent Projects -->
+    <div class="col-md-6 mb-3">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-clock me-2 text-primary"></i>
+                    Recent Projects
+                </h5>
+            </div>
+            <div class="card-body">
+                {% for project in recent_projects %}
+                <div class="d-flex align-items-center mb-3">
+                    <div class="me-3">
+                        <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                            <i class="fas fa-building text-white"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h6 class="mb-1">{{ project.name }}</h6>
+                        <p class="text-muted mb-0 small">{{ project.company_name }}</p>
+                    </div>
+                    <div>
+                        <span class="badge bg-{{ project.status|yesno:'success,warning,secondary' }}">
+                            {{ project.get_status_display }}
+                        </span>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-muted text-center">No recent projects</p>
+                {% endfor %}
+                
+                <div class="text-center mt-3">
+                    <a href="{% url 'projects:list' %}" class="btn btn-outline-primary btn-sm">
+                        View All Projects
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Upcoming Payments -->
+    <div class="col-md-6 mb-3">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-calendar-alt me-2 text-primary"></i>
+                    Pending Payments
+                </h5>
+            </div>
+            <div class="card-body">
+                {% for payment in upcoming_payments %}
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div>
+                        <h6 class="mb-1">{{ payment.description }}</h6>
+                        <p class="text-muted mb-0 small">{{ payment.project.name }}</p>
+                    </div>
+                    <div class="text-end">
+                        <div class="fw-bold text-success">${{ payment.amount }}</div>
+                        <small class="text-muted">Due: {{ payment.due_date|date:"M d" }}</small>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-muted text-center">No pending payments</p>
+                {% endfor %}
+                
+                <div class="text-center mt-3">
+                    <a href="#" class="btn btn-outline-primary btn-sm">
+                        View All Payments
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body text-center">
+                <h5 class="mb-3">Quick Actions</h5>
+                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    <a href="{% url 'projects:create' %}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>
+                        New Project
+                    </a>
+                    <a href="{% url 'dashboard:project_selection' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-project-diagram me-2"></i>
+                        Manage Projects
+                    </a>
+                    <a href="#" class="btn btn-outline-secondary">
+                        <i class="fas fa-chart-bar me-2"></i>
+                        Generate Report
+                    </a>
+                    <a href="#" class="btn btn-outline-secondary">
+                        <i class="fas fa-users me-2"></i>
+                        Team Management
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Cash Flow Chart
+const cashFlowData = {{ cash_flow_data|safe }};
+const ctx1 = document.getElementById('cashFlowChart').getContext('2d');
+new Chart(ctx1, {
+    type: 'line',
+    data: {
+        labels: cashFlowData.map(d => d.month),
+        datasets: [{
+            label: 'Income',
+            data: cashFlowData.map(d => d.income),
+            borderColor: '#10b981',
+            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+            tension: 0.4
+        }, {
+            label: 'Expenses',
+            data: cashFlowData.map(d => d.expenses),
+            borderColor: '#ef4444',
+            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+            tension: 0.4
+        }, {
+            label: 'Net Cash Flow',
+            data: cashFlowData.map(d => d.net),
+            borderColor: '#2563eb',
+            backgroundColor: 'rgba(37, 99, 235, 0.1)',
+            tension: 0.4
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'top',
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    callback: function(value) {
+                        return '$' + value.toLocaleString();
+                    }
+                }
+            }
+        }
+    }
+});
+
+// Cost Breakdown Donut Chart
+const costBreakdownData = {{ cost_breakdown|safe }};
+const ctx2 = document.getElementById('costBreakdownChart').getContext('2d');
+new Chart(ctx2, {
+    type: 'doughnut',
+    data: {
+        labels: costBreakdownData.map(d => d.category),
+        datasets: [{
+            data: costBreakdownData.map(d => d.total),
+            backgroundColor: [
+                '#2563eb',
+                '#10b981',
+                '#f59e0b',
+                '#ef4444',
+                '#8b5cf6',
+                '#06b6d4'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom',
+            }
+        }
+    }
+});
+
+// Resource Utilization Heatmap using D3.js
+fetch('{% url "dashboard:analytics_data" %}')
+    .then(response => response.json())
+    .then(data => {
+        const margin = {top: 20, right: 20, bottom: 30, left: 80};
+        const width = 300 - margin.left - margin.right;
+        const height = 200 - margin.top - margin.bottom;
+
+        const svg = d3.select("#heatmapContainer")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        const resources = [...new Set(data.resource_data.map(d => d.resource))];
+        const months = [...new Set(data.resource_data.map(d => d.month))];
+
+        const xScale = d3.scaleBand()
+            .domain(months)
+            .range([0, width])
+            .padding(0.1);
+
+        const yScale = d3.scaleBand()
+            .domain(resources)
+            .range([0, height])
+            .padding(0.1);
+
+        const colorScale = d3.scaleSequential(d3.interpolateBlues)
+            .domain([0, 100]);
+
+        svg.selectAll("rect")
+            .data(data.resource_data)
+            .enter()
+            .append("rect")
+            .attr("x", d => xScale(d.month))
+            .attr("y", d => yScale(d.resource))
+            .attr("width", xScale.bandwidth())
+            .attr("height", yScale.bandwidth())
+            .attr("fill", d => colorScale(d.utilization))
+            .attr("rx", 3);
+
+        svg.append("g")
+            .attr("transform", `translate(0,${height})`)
+            .call(d3.axisBottom(xScale));
+
+        svg.append("g")
+            .call(d3.axisLeft(yScale));
+    });
+</script>
+{% endblock %}

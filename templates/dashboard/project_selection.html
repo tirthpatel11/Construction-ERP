@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+
+{% block title %}Project Selection - SiteSphere{% endblock %}
+
+{% block page_title %}Project Management{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <!-- Action Cards -->
+        <div class="row mb-5">
+            <div class="col-md-6 mb-4">
+                <div class="card h-100 border-0 shadow-sm" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <div class="card-body text-center text-white p-5">
+                        <i class="fas fa-plus-circle fa-4x mb-3"></i>
+                        <h3 class="mb-3">Create New Project</h3>
+                        <p class="mb-4">Start a new construction project with detailed planning and partner management.</p>
+                        <a href="{% url 'projects:create' %}" class="btn btn-light btn-lg px-4">
+                            <i class="fas fa-rocket me-2"></i>
+                            Get Started
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 mb-4">
+                <div class="card h-100 border-0 shadow-sm" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <div class="card-body text-center text-white p-5">
+                        <i class="fas fa-folder-open fa-4x mb-3"></i>
+                        <h3 class="mb-3">Existing Projects</h3>
+                        <p class="mb-4">Continue working on your existing projects and track their progress.</p>
+                        <a href="{% url 'projects:list' %}" class="btn btn-light btn-lg px-4">
+                            <i class="fas fa-arrow-right me-2"></i>
+                            View Projects
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Projects -->
+        {% if projects %}
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-history me-2 text-primary"></i>
+                    Recent Projects
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Project Name</th>
+                                <th>Company</th>
+                                <th>Status</th>
+                                <th>Progress</th>
+                                <th>Budget</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for project in projects|slice:":5" %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 35px; height: 35px;">
+                                            <i class="fas fa-building text-white small"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-0">{{ project.name }}</h6>
+                                            <small class="text-muted">{{ project.created_at|date:"M d, Y" }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ project.company_name }}</td>
+                                <td>
+                                    <span class="badge bg-{% if project.status == 'active' %}success{% elif project.status == 'completed' %}primary{% elif project.status == 'on_hold' %}warning{% else %}secondary{% endif %}">
+                                        {{ project.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="progress me-2" style="width: 80px; height: 6px;">
+                                            <div class="progress-bar" role="progressbar" style="width: {{ project.completion_percentage }}%"></div>
+                                        </div>
+                                        <small class="text-muted">{{ project.completion_percentage }}%</small>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <strong>${{ project.estimated_budget|floatformat:0 }}</strong>
+                                        {% if project.actual_cost > 0 %}
+                                        <br><small class="text-muted">Spent: ${{ project.actual_cost|floatformat:0 }}</small>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{% url 'projects:detail' project.id %}" class="btn btn-outline-primary">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="#" class="btn btn-outline-secondary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                {% if projects.count > 5 %}
+                <div class="text-center mt-3">
+                    <a href="{% url 'projects:list' %}" class="btn btn-outline-primary">
+                        View All {{ projects.count }} Projects
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% else %}
+        <!-- Empty State -->
+        <div class="text-center py-5">
+            <i class="fas fa-project-diagram fa-4x text-muted mb-3"></i>
+            <h4 class="text-muted">No Projects Yet</h4>
+            <p class="text-muted mb-4">Create your first project to get started with SiteSphere.</p>
+            <a href="{% url 'projects:create' %}" class="btn btn-primary btn-lg">
+                <i class="fas fa-plus me-2"></i>
+                Create Your First Project
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

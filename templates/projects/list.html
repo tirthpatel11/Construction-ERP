@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block title %}All Projects - SiteSphere{% endblock %}
+
+{% block page_title %}All Projects{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <p class="text-muted mb-0">Manage all your construction projects</p>
+    </div>
+    <a href="{% url 'projects:create' %}" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i>
+        New Project
+    </a>
+</div>
+
+{% if projects %}
+<div class="row">
+    {% for project in projects %}
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <span class="badge bg-{% if project.status == 'active' %}success{% elif project.status == 'completed' %}primary{% elif project.status == 'on_hold' %}warning{% else %}secondary{% endif %}">
+                    {{ project.get_status_display }}
+                </span>
+                <small class="text-muted">{{ project.created_at|date:"M d, Y" }}</small>
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">{{ project.name }}</h5>
+                <p class="text-muted mb-2">
+                    <i class="fas fa-building me-2"></i>
+                    {{ project.company_name }}
+                </p>
+                <p class="text-muted mb-3">
+                    <i class="fas fa-map-marker-alt me-2"></i>
+                    {{ project.project_address|truncatechars:50 }}
+                </p>
+                
+                <!-- Progress Bar -->
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <small class="text-muted">Progress</small>
+                        <small class="fw-bold">{{ project.completion_percentage }}%</small>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar" role="progressbar" style="width: {{ project.completion_percentage }}%"></div>
+                    </div>
+                </div>
+                
+                <!-- Budget Information -->
+                <div class="row text-center mb-3">
+                    <div class="col-6">
+                        <div class="border-end">
+                            <h6 class="text-primary mb-0">${{ project.estimated_budget|floatformat:0 }}</h6>
+                            <small class="text-muted">Budget</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <h6 class="text-{% if project.actual_cost > project.estimated_budget %}danger{% else %}success{% endif %} mb-0">
+                            ${{ project.actual_cost|floatformat:0 }}
+                        </h6>
+                        <small class="text-muted">Spent</small>
+                    </div>
+                </div>
+                
+                <!-- Partners Count -->
+                <p class="text-muted mb-3">
+                    <i class="fas fa-users me-2"></i>
+                    {{ project.partners.count }} Partner{{ project.partners.count|pluralize }}
+                </p>
+            </div>
+            <div class="card-footer bg-white">
+                <div class="d-flex justify-content-between">
+                    <a href="{% url 'projects:detail' project.id %}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-eye me-1"></i>
+                        View Details
+                    </a>
+                    <div class="btn-group btn-group-sm">
+                        <button class="btn btn-outline-secondary" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-outline-secondary" title="Reports">
+                            <i class="fas fa-chart-bar"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Pagination would go here if needed -->
+
+{% else %}
+<!-- Empty State -->
+<div class="text-center py-5">
+    <i class="fas fa-project-diagram fa-4x text-muted mb-3"></i>
+    <h4 class="text-muted">No Projects Found</h4>
+    <p class="text-muted mb-4">You haven't created any projects yet. Start by creating your first project.</p>
+    <a href="{% url 'projects:create' %}" class="btn btn-primary btn-lg">
+        <i class="fas fa-plus me-2"></i>
+        Create Your First Project
+    </a>
+</div>
+{% endif %}
+{% endblock %}
