@@ -1,5 +1,5 @@
 from django import forms
-from .models import Project, Partner
+from .models import Project, Partner, ProjectExpense
 
 
 class ProjectForm(forms.ModelForm):
@@ -42,3 +42,16 @@ class PartnerForm(forms.ModelForm):
 PartnerFormSet = forms.inlineformset_factory(
     Project, Partner, form=PartnerForm, extra=1, can_delete=True
 )
+
+
+class ProjectExpenseForm(forms.ModelForm):
+    class Meta:
+        model = ProjectExpense
+        fields = ['category', 'description', 'amount', 'date', 'receipt']
+        widgets = {
+            'category': forms.Select(attrs={'class': 'form-select'}),
+            'description': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Describe the expense'}),
+            'amount': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'placeholder': '0.00'}),
+            'date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'receipt': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+        }

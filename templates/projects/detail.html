@@ -25,6 +25,10 @@
     </div>
     <div class="col-md-4 text-end">
         <div class="btn-group">
+            <a href="{% url 'projects:expense_add' project.id %}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>
+                Add Expense
+            </a>
             <button class="btn btn-outline-primary">
                 <i class="fas fa-edit me-2"></i>
                 Edit Project
@@ -212,6 +216,7 @@
                                 <th>Description</th>
                                 <th>Amount</th>
                                 <th>Date</th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -223,6 +228,15 @@
                                 <td>{{ expense.description }}</td>
                                 <td class="fw-bold">${{ expense.amount }}</td>
                                 <td>{{ expense.date|date:"M d, Y" }}</td>
+                                <td class="text-end">
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{% url 'projects:expense_edit' project.id expense.id %}" class="btn btn-outline-primary">Edit</a>
+                                        <form method="post" action="{% url 'projects:expense_delete' project.id expense.id %}" style="display:inline;">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-outline-danger">Delete</button>
+                                        </form>
+                                    </div>
+                                </td>
                             </tr>
                             {% endfor %}
                         </tbody>

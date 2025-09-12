@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
 from .models import Project, Partner, ProjectExpense, ProjectPayment, ProjectTimeline
-from .forms import ProjectForm, PartnerFormSet
+from .forms import ProjectForm, PartnerFormSet, ProjectExpenseForm
 from django.db import transaction
 
 
@@ -115,3 +115,62 @@ def project_analytics(request, project_id):
         'completion_percentage': project.completion_percentage,
         'budget_utilization': float(project.actual_cost / project.estimated_budget * 100) if project.estimated_budget > 0 else 0,
     })
+
+
+@login_required
+def expense_create(request, project_id):
+    """Create a new expense for a project"""
+    project = get_object_or_404(Project, id=project_id, created_by=request.user)
+    if request.method == 'POST':
+        form = ProjectExpenseForm(request.POST, request.FILES)
+        if form.is_valid():
+            expense = form.save(commit=False)
+            expense.project = project
+            expense.save()
+            messages.success(request, 'Expense added successfully!')
+            return redirect('projects:detail', project_id=project.id)
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = ProjectExpenseForm()
+    return render(request, 'projects/expense_form.html', {
+        'project': project,
+        'form': form,
+        'is_edit': False,
+    })
+
+
+@login_required
+def expense_edit(request, project_id, expense_id):
+    """Edit an existing expense"""
+    project = get_object_or_404(Project, id=project_id, created_by=request.user)
+    expense = get_object_or_404(ProjectExpense, id=expense_id, project=project)
+    if request.method == 'POST':
+        form = ProjectExpenseForm(request.POST, request.FILES, instance=expense)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Expense updated successfully!')
+            return redirect('projects:detail', project_id=project.id)
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = ProjectExpenseForm(instance=expense)
+    return render(request, 'projects/expense_form.html', {
+        'project': project,
+        'form': form,
+        'is_edit': True,
+        'expense': expense,
+    })
+
+
+@login_required
+def expense_delete(request, project_id, expense_id):
+    """Delete an expense (POST only)"""
+    project = get_object_or_404(Project, id=project_id, created_by=request.user)
+    expense = get_object_or_404(ProjectExpense, id=expense_id, project=project)
+    if request.method == 'POST':
+        expense.delete()
+        messages.success(request, 'Expense deleted successfully!')
+        return redirect('projects:detail', project_id=project.id)
+    # For non-POST requests, redirect back without action
+    return redirect('projects:detail', project_id=project.id)
