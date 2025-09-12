@@ -13,15 +13,17 @@
                 <i class="fas fa-project-diagram fa-2x mb-2"></i>
                 <h3 class="mb-1">{{ total_projects }}</h3>
                 <p class="mb-0">Total Projects</p>
+                <small class="text-light opacity-75">{{ active_projects }} Active</small>
             </div>
         </div>
     </div>
     <div class="col-md-3 mb-3">
-        <div class="card stat-card success">
+        <div class="card stat-card {% if profit_margin > 0 %}success{% else %}danger{% endif %}">
             <div class="card-body text-center">
-                <i class="fas fa-play-circle fa-2x mb-2"></i>
-                <h3 class="mb-1">{{ active_projects }}</h3>
-                <p class="mb-0">Active Projects</p>
+                <i class="fas fa-chart-line fa-2x mb-2"></i>
+                <h3 class="mb-1">{{ profit_margin|floatformat:1 }}%</h3>
+                <p class="mb-0">Profit Margin</p>
+                <small class="text-light opacity-75">${{ total_received|floatformat:0 }} Revenue</small>
             </div>
         </div>
     </div>
@@ -31,24 +33,75 @@
                 <i class="fas fa-dollar-sign fa-2x mb-2"></i>
                 <h3 class="mb-1">${{ total_budget|floatformat:0 }}</h3>
                 <p class="mb-0">Total Budget</p>
+                <small class="text-light opacity-75">${{ total_spent|floatformat:0 }} Spent</small>
             </div>
         </div>
     </div>
     <div class="col-md-3 mb-3">
-        <div class="card stat-card danger">
+        <div class="card stat-card {% if critical_projects > 0 %}danger{% else %}success{% endif %}">
             <div class="card-body text-center">
-                <i class="fas fa-chart-line fa-2x mb-2"></i>
-                <h3 class="mb-1">{{ budget_utilization|floatformat:1 }}%</h3>
-                <p class="mb-0">Budget Used</p>
+                <i class="fas fa-exclamation-triangle fa-2x mb-2"></i>
+                <h3 class="mb-1">{{ critical_projects }}</h3>
+                <p class="mb-0">Critical Projects</p>
+                <small class="text-light opacity-75">{{ overdue_payments }} Overdue</small>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Key Performance Indicators -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-tachometer-alt me-2 text-primary"></i>
+                    Key Performance Indicators
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 text-center">
+                        <div class="mb-2">
+                            <div class="progress mx-auto" style="width: 80px; height: 80px; border-radius: 50%; background: conic-gradient(#2563eb 0deg {{ budget_utilization|floatformat:0 }}%, #e5e7eb {{ budget_utilization|floatformat:0 }}% 360deg);">
+                                <div class="d-flex align-items-center justify-content-center h-100 w-100 bg-white rounded-circle" style="margin: 8px;">
+                                    <span class="fw-bold">{{ budget_utilization|floatformat:0 }}%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <h6 class="text-muted">Budget Utilization</h6>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <div class="mb-2">
+                            <div class="progress mx-auto" style="width: 80px; height: 80px; border-radius: 50%; background: conic-gradient(#10b981 0deg {{ completed_projects|div:total_projects|mul:360|default:0 }}deg, #e5e7eb {{ completed_projects|div:total_projects|mul:360|default:0 }}deg 360deg);">
+                                <div class="d-flex align-items-center justify-content-center h-100 w-100 bg-white rounded-circle" style="margin: 8px;">
+                                    <span class="fw-bold">{{ completed_projects|div:total_projects|mul:100|floatformat:0|default:0 }}%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <h6 class="text-muted">Project Completion</h6>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <div class="mb-2">
+                            <h3 class="text-success mb-0">${{ total_received|sub:total_spent|floatformat:0 }}</h3>
+                        </div>
+                        <h6 class="text-muted">Net Profit</h6>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <div class="mb-2">
+                            <h3 class="{% if overdue_payments > 0 %}text-danger{% else %}text-success{% endif %} mb-0">{{ overdue_payments }}</h3>
+                        </div>
+                        <h6 class="text-muted">Overdue Payments</h6>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <!-- Charts Row -->
 <div class="row mb-4">
     <!-- Cash Flow Chart -->
-    <div class="col-md-8 mb-3">
+    <div class="col-md-6 mb-3">
         <div class="card">
             <div class="card-header bg-white">
                 <h5 class="mb-0">
@@ -64,8 +117,28 @@
         </div>
     </div>
     
+    <!-- Monthly Revenue Trend -->
+    <div class="col-md-6 mb-3">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-area me-2 text-primary"></i>
+                    Revenue Trend
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Second Charts Row -->
+<div class="row mb-4">
     <!-- Cost Breakdown Donut Chart -->
-    <div class="col-md-4 mb-3">
+    <div class="col-md-6 mb-3">
         <div class="card">
             <div class="card-header bg-white">
                 <h5 class="mb-0">
@@ -80,54 +153,97 @@
             </div>
         </div>
     </div>
-</div>
-
-<!-- Project Completion & Resource Utilization -->
-<div class="row mb-4">
-    <!-- Project Completion Progress -->
+    
+    <!-- Project Completion Chart -->
     <div class="col-md-6 mb-3">
         <div class="card">
             <div class="card-header bg-white">
                 <h5 class="mb-0">
                     <i class="fas fa-tasks me-2 text-primary"></i>
-                    Project Completion Status
+                    Project Progress
                 </h5>
             </div>
             <div class="card-body">
-                {% for project in recent_projects %}
-                <div class="mb-3">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                        <span class="fw-semibold">{{ project.name }}</span>
-                        <span class="badge bg-primary">{{ project.completion_percentage }}%</span>
-                    </div>
-                    <div class="progress">
-                        <div class="progress-bar" role="progressbar" style="width: {{ project.completion_percentage }}%"></div>
-                    </div>
+                <div class="chart-container">
+                    <canvas id="projectProgressChart"></canvas>
                 </div>
-                {% empty %}
-                <p class="text-muted text-center">No projects found</p>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-    
-    <!-- Resource Utilization Heatmap -->
-    <div class="col-md-6 mb-3">
-        <div class="card">
-            <div class="card-header bg-white">
-                <h5 class="mb-0">
-                    <i class="fas fa-fire me-2 text-primary"></i>
-                    Resource Utilization
-                </h5>
-            </div>
-            <div class="card-body">
-                <div id="heatmapContainer" class="heatmap-container"></div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Recent Activity & Upcoming Payments -->
+<!-- Project Status & Team Performance -->
+<div class="row mb-4">
+    <!-- Active Projects Status -->
+    <div class="col-md-6 mb-3">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-list-check me-2 text-primary"></i>
+                    Active Projects Status
+                </h5>
+            </div>
+            <div class="card-body">
+                {% for project in recent_projects %}
+                {% if project.status == 'active' %}
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="fw-semibold">{{ project.name }}</span>
+                        <div>
+                            <span class="badge bg-{% if project.completion_percentage >= 75 %}success{% elif project.completion_percentage >= 50 %}warning{% else %}danger{% endif %}">
+                                {{ project.completion_percentage }}%
+                            </span>
+                            <span class="badge bg-secondary ms-1">${{ project.actual_cost|floatformat:0 }}/${{ project.estimated_budget|floatformat:0 }}</span>
+                        </div>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar bg-{% if project.completion_percentage >= 75 %}success{% elif project.completion_percentage >= 50 %}warning{% else %}danger{% endif %}" 
+                             role="progressbar" style="width: {{ project.completion_percentage }}%"></div>
+                    </div>
+                    <small class="text-muted">{{ project.company_name }}</small>
+                </div>
+                {% endif %}
+                {% empty %}
+                <p class="text-muted text-center">No active projects</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Team Productivity -->
+    <div class="col-md-6 mb-3">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-users me-2 text-primary"></i>
+                    Team Performance
+                </h5>
+            </div>
+            <div class="card-body">
+                {% for member in team_productivity %}
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 35px; height: 35px;">
+                            <i class="fas fa-user text-white small"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-0">{{ member.member }}</h6>
+                            <small class="text-muted">{{ member.projects }} project{{ member.projects|pluralize }}</small>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge bg-{% if member.completion_rate >= 85 %}success{% elif member.completion_rate >= 70 %}warning{% else %}danger{% endif %}">
+                            {{ member.completion_rate }}%
+                        </span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity & Critical Alerts -->
 <div class="row">
     <!-- Recent Projects -->
     <div class="col-md-6 mb-3">
@@ -151,7 +267,7 @@
                         <p class="text-muted mb-0 small">{{ project.company_name }}</p>
                     </div>
                     <div>
-                        <span class="badge bg-{{ project.status|yesno:'success,warning,secondary' }}">
+                        <span class="badge bg-{% if project.status == 'active' %}success{% elif project.status == 'completed' %}primary{% elif project.status == 'on_hold' %}warning{% else %}secondary{% endif %}">
                             {{ project.get_status_display }}
                         </span>
                     </div>
@@ -169,16 +285,30 @@
         </div>
     </div>
     
-    <!-- Upcoming Payments -->
+    <!-- Critical Alerts & Upcoming Payments -->
     <div class="col-md-6 mb-3">
         <div class="card">
             <div class="card-header bg-white">
                 <h5 class="mb-0">
-                    <i class="fas fa-calendar-alt me-2 text-primary"></i>
-                    Pending Payments
+                    <i class="fas fa-bell me-2 text-primary"></i>
+                    Critical Alerts & Payments
                 </h5>
             </div>
             <div class="card-body">
+                {% if overdue_payments > 0 %}
+                <div class="alert alert-danger py-2 mb-3">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>{{ overdue_payments }}</strong> overdue payment{{ overdue_payments|pluralize }}
+                </div>
+                {% endif %}
+                
+                {% if critical_projects > 0 %}
+                <div class="alert alert-warning py-2 mb-3">
+                    <i class="fas fa-project-diagram me-2"></i>
+                    <strong>{{ critical_projects }}</strong> project{{ critical_projects|pluralize }} need{{ critical_projects|pluralize:"s," }} attention
+                </div>
+                {% endif %}
+                
                 {% for payment in upcoming_payments %}
                 <div class="d-flex align-items-center justify-content-between mb-3">
                     <div>
@@ -191,7 +321,12 @@
                     </div>
                 </div>
                 {% empty %}
-                <p class="text-muted text-center">No pending payments</p>
+                {% if overdue_payments == 0 and critical_projects == 0 %}
+                <div class="text-center py-3">
+                    <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                    <p class="text-muted mb-0">All systems running smoothly!</p>
+                </div>
+                {% endif %}
                 {% endfor %}
                 
                 <div class="text-center mt-3">
@@ -248,19 +383,22 @@ new Chart(ctx1, {
             data: cashFlowData.map(d => d.income),
             borderColor: '#10b981',
             backgroundColor: 'rgba(16, 185, 129, 0.1)',
-            tension: 0.4
+            tension: 0.4,
+            fill: true
         }, {
             label: 'Expenses',
             data: cashFlowData.map(d => d.expenses),
             borderColor: '#ef4444',
             backgroundColor: 'rgba(239, 68, 68, 0.1)',
-            tension: 0.4
+            tension: 0.4,
+            fill: true
         }, {
             label: 'Net Cash Flow',
             data: cashFlowData.map(d => d.net),
             borderColor: '#2563eb',
             backgroundColor: 'rgba(37, 99, 235, 0.1)',
-            tension: 0.4
+            tension: 0.4,
+            fill: true
         }]
     },
     options: {
@@ -284,6 +422,41 @@ new Chart(ctx1, {
     }
 });
 
+// Revenue Trend Chart
+const revenueData = {{ monthly_revenue|safe }};
+const ctx4 = document.getElementById('revenueChart').getContext('2d');
+new Chart(ctx4, {
+    type: 'bar',
+    data: {
+        labels: revenueData.map(d => d.month),
+        datasets: [{
+            label: 'Monthly Revenue',
+            data: revenueData.map(d => d.revenue),
+            backgroundColor: 'rgba(37, 99, 235, 0.8)',
+            borderColor: '#2563eb',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    callback: function(value) {
+                        return '$' + value.toLocaleString();
+                    }
+                }
+            }
+        }
+    }
+});
 // Cost Breakdown Donut Chart
 const costBreakdownData = {{ cost_breakdown|safe }};
 const ctx2 = document.getElementById('costBreakdownChart').getContext('2d');
@@ -314,54 +487,45 @@ new Chart(ctx2, {
     }
 });
 
-// Resource Utilization Heatmap using D3.js
-fetch('{% url "dashboard:analytics_data" %}')
-    .then(response => response.json())
-    .then(data => {
-        const margin = {top: 20, right: 20, bottom: 30, left: 80};
-        const width = 300 - margin.left - margin.right;
-        const height = 200 - margin.top - margin.bottom;
-
-        const svg = d3.select("#heatmapContainer")
-            .append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-            .append("g")
-            .attr("transform", `translate(${margin.left},${margin.top})`);
-
-        const resources = [...new Set(data.resource_data.map(d => d.resource))];
-        const months = [...new Set(data.resource_data.map(d => d.month))];
-
-        const xScale = d3.scaleBand()
-            .domain(months)
-            .range([0, width])
-            .padding(0.1);
-
-        const yScale = d3.scaleBand()
-            .domain(resources)
-            .range([0, height])
-            .padding(0.1);
-
-        const colorScale = d3.scaleSequential(d3.interpolateBlues)
-            .domain([0, 100]);
-
-        svg.selectAll("rect")
-            .data(data.resource_data)
-            .enter()
-            .append("rect")
-            .attr("x", d => xScale(d.month))
-            .attr("y", d => yScale(d.resource))
-            .attr("width", xScale.bandwidth())
-            .attr("height", yScale.bandwidth())
-            .attr("fill", d => colorScale(d.utilization))
-            .attr("rx", 3);
-
-        svg.append("g")
-            .attr("transform", `translate(0,${height})`)
-            .call(d3.axisBottom(xScale));
-
-        svg.append("g")
-            .call(d3.axisLeft(yScale));
-    });
+// Project Progress Chart
+const projectData = {{ project_completion|safe }};
+const ctx3 = document.getElementById('projectProgressChart').getContext('2d');
+new Chart(ctx3, {
+    type: 'horizontalBar',
+    data: {
+        labels: projectData.map(d => d.name),
+        datasets: [{
+            label: 'Completion %',
+            data: projectData.map(d => d.completion),
+            backgroundColor: projectData.map(d => {
+                if (d.completion >= 75) return '#10b981';
+                if (d.completion >= 50) return '#f59e0b';
+                return '#ef4444';
+            }),
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        indexAxis: 'y',
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            x: {
+                beginAtZero: true,
+                max: 100,
+                ticks: {
+                    callback: function(value) {
+                        return value + '%';
+                    }
+                }
+            }
+        }
+    }
+});
 </script>
 {% endblock %}
