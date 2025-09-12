@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}Journal Entries - Accounts{% endblock %}
+
+{% block page_title %}Journal Entries{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <h4>All Journal Entries</h4>
+            <a href="{% url 'accounts:journal_entry_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>
+                Create Journal Entry
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                {% if entries %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Entry Number</th>
+                                <th>Date</th>
+                                <th>Description</th>
+                                <th>Project</th>
+                                <th>Total Debit</th>
+                                <th>Total Credit</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for entry in entries %}
+                            <tr>
+                                <td>{{ entry.entry_number }}</td>
+                                <td>{{ entry.entry_date|date:"M d, Y" }}</td>
+                                <td>{{ entry.description|truncatechars:50 }}</td>
+                                <td>{{ entry.project.name|default:"-" }}</td>
+                                <td>${{ entry.total_debit|floatformat:2 }}</td>
+                                <td>${{ entry.total_credit|floatformat:2 }}</td>
+                                <td>
+                                    <span class="badge bg-{% if entry.is_posted %}success{% else %}warning{% endif %}">
+                                        {% if entry.is_posted %}Posted{% else %}Draft{% endif %}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{% url 'accounts:journal_entry_detail' entry.id %}" class="btn btn-sm btn-outline-primary">View</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-book fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No journal entries found</h5>
+                    <p class="text-muted">Create your first journal entry to get started.</p>
+                    <a href="{% url 'accounts:journal_entry_create' %}" class="btn btn-primary">Create Journal Entry</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

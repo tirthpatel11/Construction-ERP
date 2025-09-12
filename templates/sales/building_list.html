@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}Buildings - Sales{% endblock %}
+
+{% block page_title %}Buildings{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <h4>All Buildings</h4>
+            <a href="{% url 'sales:building_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>
+                Add Building
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                {% if buildings %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Project</th>
+                                <th>Total Floors</th>
+                                <th>Total Units</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for building in buildings %}
+                            <tr>
+                                <td>{{ building.name }}</td>
+                                <td>{{ building.project.name }}</td>
+                                <td>{{ building.total_floors }}</td>
+                                <td>{{ building.total_units }}</td>
+                                <td>
+                                    <span class="badge bg-{% if building.is_active %}success{% else %}secondary{% endif %}">
+                                        {% if building.is_active %}Active{% else %}Inactive{% endif %}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{% url 'sales:building_detail' building.id %}" class="btn btn-sm btn-outline-primary">View</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-building fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No buildings found</h5>
+                    <p class="text-muted">Add your first building to get started.</p>
+                    <a href="{% url 'sales:building_create' %}" class="btn btn-primary">Add Building</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

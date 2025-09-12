@@ -45,6 +45,10 @@ INSTALLED_APPS = [
     "authentication",
     "dashboard",
     "projects",
+    "engineering",
+    "material_management",
+    "accounts",
+    "sales",
 ]
 
 MIDDLEWARE = [

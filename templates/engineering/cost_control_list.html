@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block title %}Cost Control - Engineering{% endblock %}
+
+{% block page_title %}Cost Control{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h4>Project Cost Control</h4>
+        <p class="text-muted">Select a project to view 3-level cost control (Budget vs Estimate vs Actual)</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                {% if projects %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Project Name</th>
+                                <th>Company</th>
+                                <th>Status</th>
+                                <th>Estimated Budget</th>
+                                <th>Actual Cost</th>
+                                <th>Variance</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for project in projects %}
+                            <tr>
+                                <td>{{ project.name }}</td>
+                                <td>{{ project.company_name }}</td>
+                                <td>
+                                    <span class="badge bg-{% if project.status == 'active' %}success{% elif project.status == 'completed' %}primary{% elif project.status == 'on_hold' %}warning{% else %}secondary{% endif %}">
+                                        {{ project.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>${{ project.estimated_budget|floatformat:2 }}</td>
+                                <td>${{ project.actual_cost|floatformat:2 }}</td>
+                                <td class="{% if project.budget_variance < 0 %}text-danger{% else %}text-success{% endif %}">
+                                    ${{ project.budget_variance|floatformat:2 }}
+                                </td>
+                                <td>
+                                    <a href="{% url 'engineering:cost_control_detail' project.id %}" class="btn btn-sm btn-outline-primary">View Details</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No projects found</h5>
+                    <p class="text-muted">Create a project first to set up cost control.</p>
+                    <a href="{% url 'projects:create' %}" class="btn btn-primary">Create Project</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

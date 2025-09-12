@@ -212,13 +212,21 @@
                                 <i class="fas fa-project-diagram me-2"></i>
                                 Projects
                             </a>
-                            <a class="nav-link {% if request.resolver_match.url_name == 'list' %}active{% endif %}" href="{% url 'projects:list' %}">
-                                <i class="fas fa-list me-2"></i>
-                                All Projects
+                            <a class="nav-link {% if 'engineering' in request.resolver_match.namespace %}active{% endif %}" href="{% url 'engineering:dashboard' %}">
+                                <i class="fas fa-calculator me-2"></i>
+                                Engineering
                             </a>
-                            <a class="nav-link" href="#">
-                                <i class="fas fa-users me-2"></i>
-                                Team
+                            <a class="nav-link {% if 'material_management' in request.resolver_match.namespace %}active{% endif %}" href="{% url 'material_management:dashboard' %}">
+                                <i class="fas fa-boxes me-2"></i>
+                                Material Management
+                            </a>
+                            <a class="nav-link {% if 'accounts' in request.resolver_match.namespace %}active{% endif %}" href="{% url 'accounts:dashboard' %}">
+                                <i class="fas fa-book me-2"></i>
+                                Accounts
+                            </a>
+                            <a class="nav-link {% if 'sales' in request.resolver_match.namespace %}active{% endif %}" href="{% url 'sales:dashboard' %}">
+                                <i class="fas fa-shopping-cart me-2"></i>
+                                Sales
                             </a>
                             <a class="nav-link" href="#">
                                 <i class="fas fa-chart-bar me-2"></i>

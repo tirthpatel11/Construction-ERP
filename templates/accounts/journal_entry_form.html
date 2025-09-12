@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Journal Entry - Accounts{% endblock %}
+
+{% block page_title %}Create Journal Entry{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Create New Journal Entry</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Entry Date</label>
+                            {{ form.entry_date }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Reference</label>
+                            {{ form.reference }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Project</label>
+                            {{ form.project }}
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">Description</label>
+                            {{ form.description }}
+                        </div>
+                    </div>
+                    <div class="mt-4 d-flex justify-content-between">
+                        <a href="{% url 'accounts:journal_entry_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Create Journal Entry</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

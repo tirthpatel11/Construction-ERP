@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ schedule.name }} - Engineering{% endblock %}
+
+{% block page_title %}{{ schedule.name }}{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="d-flex align-items-center mb-2">
+            <span class="badge bg-primary me-3">Active</span>
+            <span class="text-muted">Created {{ schedule.created_at|date:"M d, Y" }}</span>
+        </div>
+        <p class="text-muted mb-1">
+            <i class="fas fa-project-diagram me-2"></i>
+            {{ schedule.project.name }}
+        </p>
+        <p class="text-muted">
+            <i class="fas fa-calendar me-2"></i>
+            {{ schedule.start_date|date:"M d, Y" }} - {{ schedule.end_date|date:"M d, Y" }}
+        </p>
+    </div>
+    <div class="col-md-4 text-end">
+        <div class="btn-group">
+            <a href="{% url 'engineering:schedule_list' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>
+                Back to List
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-tasks me-2 text-primary"></i>
+                    Schedule Activities
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if activities %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Activity Code</th>
+                                <th>Description</th>
+                                <th>Planned Start</th>
+                                <th>Planned End</th>
+                                <th>Duration</th>
+                                <th>Completion %</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for activity in activities %}
+                            <tr>
+                                <td>{{ activity.activity_code }}</td>
+                                <td>{{ activity.description }}</td>
+                                <td>{{ activity.planned_start|date:"M d, Y" }}</td>
+                                <td>{{ activity.planned_end|date:"M d, Y" }}</td>
+                                <td>{{ activity.duration_days }} days</td>
+                                <td>
+                                    <div class="progress" style="height: 20px;">
+                                        <div class="progress-bar" role="progressbar" style="width: {{ activity.completion_percentage }}%">
+                                            {{ activity.completion_percentage }}%
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if activity.is_critical %}
+                                        <span class="badge bg-danger">Critical</span>
+                                    {% elif activity.is_milestone %}
+                                        <span class="badge bg-warning">Milestone</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Normal</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-tasks fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No activities found</h5>
+                    <p class="text-muted">Add activities to build your schedule.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

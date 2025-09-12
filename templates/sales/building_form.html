@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Building - Sales{% endblock %}
+
+{% block page_title %}Add Building{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Add New Building</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Project</label>
+                            {{ form.project }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Building Name</label>
+                            {{ form.name }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Total Floors</label>
+                            {{ form.total_floors }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Total Units</label>
+                            {{ form.total_units }}
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">Description</label>
+                            {{ form.description }}
+                        </div>
+                    </div>
+                    <div class="mt-4 d-flex justify-content-between">
+                        <a href="{% url 'sales:building_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Add Building</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

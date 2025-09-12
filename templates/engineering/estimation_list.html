@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}Estimations - Engineering{% endblock %}
+
+{% block page_title %}Estimations{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <h4>All Estimations</h4>
+            <a href="{% url 'engineering:estimation_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>
+                Create Estimation
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                {% if estimations %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Project</th>
+                                <th>Version</th>
+                                <th>Total Cost</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for estimation in estimations %}
+                            <tr>
+                                <td>{{ estimation.name }}</td>
+                                <td>{{ estimation.project.name }}</td>
+                                <td>{{ estimation.version }}</td>
+                                <td>${{ estimation.total_estimated_cost|floatformat:2 }}</td>
+                                <td>{{ estimation.created_at|date:"M d, Y" }}</td>
+                                <td>
+                                    <a href="{% url 'engineering:estimation_detail' estimation.id %}" class="btn btn-sm btn-outline-primary">View</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-calculator fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No estimations found</h5>
+                    <p class="text-muted">Create your first estimation to get started.</p>
+                    <a href="{% url 'engineering:estimation_create' %}" class="btn btn-primary">Create Estimation</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

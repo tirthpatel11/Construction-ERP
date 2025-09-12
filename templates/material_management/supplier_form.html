@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Supplier - Material Management{% endblock %}
+
+{% block page_title %}Add Supplier{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Add New Supplier</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Supplier Name</label>
+                            {{ form.name }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Contact Person</label>
+                            {{ form.contact_person }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Email</label>
+                            {{ form.email }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Phone</label>
+                            {{ form.phone }}
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">Address</label>
+                            {{ form.address }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">City</label>
+                            {{ form.city }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">State</label>
+                            {{ form.state }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Pincode</label>
+                            {{ form.pincode }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">GST Number</label>
+                            {{ form.gst_number }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">PAN Number</label>
+                            {{ form.pan_number }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Grading</label>
+                            {{ form.grading }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Rating</label>
+                            {{ form.rating }}
+                        </div>
+                    </div>
+                    <div class="mt-4 d-flex justify-content-between">
+                        <a href="{% url 'material_management:supplier_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Add Supplier</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+
+{% block title %}Engineering - SiteSphere{% endblock %}
+
+{% block page_title %}Engineering Dashboard{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <i class="fas fa-calculator fa-2x mb-2"></i>
+                <h3 class="mb-1">{{ estimations.count }}</h3>
+                <p class="mb-0">Active Estimations</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card success">
+            <div class="card-body text-center">
+                <i class="fas fa-dollar-sign fa-2x mb-2"></i>
+                <h3 class="mb-1">{{ budgets.count }}</h3>
+                <p class="mb-0">Project Budgets</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card warning">
+            <div class="card-body text-center">
+                <i class="fas fa-calendar-alt fa-2x mb-2"></i>
+                <h3 class="mb-1">{{ schedules.count }}</h3>
+                <p class="mb-0">Active Schedules</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <i class="fas fa-project-diagram fa-2x mb-2"></i>
+                <h3 class="mb-1">{{ projects.count }}</h3>
+                <p class="mb-0">Total Projects</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-calculator me-2 text-primary"></i>
+                    Recent Estimations
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if estimations %}
+                    {% for estimation in estimations|slice:":5" %}
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h6 class="mb-1">{{ estimation.name }}</h6>
+                            <small class="text-muted">{{ estimation.project.name }} - v{{ estimation.version }}</small>
+                        </div>
+                        <div class="text-end">
+                            <div class="fw-bold text-success">${{ estimation.total_estimated_cost|floatformat:0 }}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                <p class="text-muted text-center">No estimations yet</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-calendar-alt me-2 text-primary"></i>
+                    Recent Schedules
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if schedules %}
+                    {% for schedule in schedules|slice:":5" %}
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h6 class="mb-1">{{ schedule.name }}</h6>
+                            <small class="text-muted">{{ schedule.project.name }}</small>
+                        </div>
+                        <div class="text-end">
+                            <small class="text-muted">{{ schedule.start_date|date:"M d" }} - {{ schedule.end_date|date:"M d" }}</small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                <p class="text-muted text-center">No schedules yet</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-tools me-2 text-primary"></i>
+                    Quick Actions
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <a href="{% url 'engineering:estimation_create' %}" class="btn btn-primary w-100">
+                            <i class="fas fa-plus me-2"></i>
+                            Create Estimation
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="{% url 'engineering:budget_create' %}" class="btn btn-success w-100">
+                            <i class="fas fa-dollar-sign me-2"></i>
+                            Create Budget
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="{% url 'engineering:schedule_create' %}" class="btn btn-warning w-100">
+                            <i class="fas fa-calendar-plus me-2"></i>
+                            Create Schedule
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="{% url 'engineering:cost_control_list' %}" class="btn btn-info w-100">
+                            <i class="fas fa-chart-line me-2"></i>
+                            Cost Control
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

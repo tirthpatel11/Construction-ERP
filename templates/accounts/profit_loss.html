@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}Profit & Loss Statement - Accounts{% endblock %}
+
+{% block page_title %}Profit & Loss Statement{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h4>Profit & Loss Statement</h4>
+        <p class="text-muted">Income and expense statement for the period</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="text-center py-5">
+                    <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">P&L Statement Feature</h5>
+                    <p class="text-muted">This feature will generate profit & loss statement from journal entries.</p>
+                    <p class="text-muted">Create some journal entries first to see the P&L statement.</p>
+                    <a href="{% url 'accounts:journal_entry_create' %}" class="btn btn-primary">Create Journal Entry</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

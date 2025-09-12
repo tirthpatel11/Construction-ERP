@@ -28,6 +28,10 @@ urlpatterns = [
     path("auth/", include("authentication.urls")),
     path("dashboard/", include("dashboard.urls")),
     path("projects/", include("projects.urls")),
+    path("engineering/", include("engineering.urls")),
+    path("material-management/", include("material_management.urls")),
+    path("accounts/", include("accounts.urls")),
+    path("sales/", include("sales.urls")),
 ]
 
 if settings.DEBUG:

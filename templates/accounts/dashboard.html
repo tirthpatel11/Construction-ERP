@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+
+{% block title %}Accounts - SiteSphere{% endblock %}
+
+{% block page_title %}Accounts Dashboard{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <i class="fas fa-book fa-2x mb-2"></i>
+                <h3 class="mb-1">{{ recent_entries.count }}</h3>
+                <p class="mb-0">Journal Entries</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card success">
+            <div class="card-body text-center">
+                <i class="fas fa-dollar-sign fa-2x mb-2"></i>
+                <h3 class="mb-1">${{ total_debit|floatformat:0 }}</h3>
+                <p class="mb-0">Total Debits</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card warning">
+            <div class="card-body text-center">
+                <i class="fas fa-credit-card fa-2x mb-2"></i>
+                <h3 class="mb-1">${{ total_credit|floatformat:0 }}</h3>
+                <p class="mb-0">Total Credits</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <i class="fas fa-chart-pie fa-2x mb-2"></i>
+                <h3 class="mb-1">{{ budgets.count }}</h3>
+                <p class="mb-0">Active Budgets</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-book me-2 text-primary"></i>
+                    Recent Journal Entries
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if recent_entries %}
+                    {% for entry in recent_entries %}
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h6 class="mb-1">{{ entry.entry_number }}</h6>
+                            <small class="text-muted">{{ entry.description|truncatechars:50 }}</small>
+                        </div>
+                        <div class="text-end">
+                            <div class="fw-bold text-success">${{ entry.total_debit|floatformat:0 }}</div>
+                            <small class="text-muted">{{ entry.entry_date|date:"M d, Y" }}</small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                <p class="text-muted text-center">No journal entries yet</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-pie me-2 text-primary"></i>
+                    Active Budgets
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if budgets %}
+                    {% for budget in budgets|slice:":5" %}
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h6 class="mb-1">{{ budget.name }}</h6>
+                            <small class="text-muted">{{ budget.project.name }} - {{ budget.financial_year }}</small>
+                        </div>
+                        <div class="text-end">
+                            <div class="fw-bold text-success">${{ budget.total_budget|floatformat:0 }}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                <p class="text-muted text-center">No budgets yet</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-tools me-2 text-primary"></i>
+                    Quick Actions
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <a href="{% url 'accounts:journal_entry_create' %}" class="btn btn-primary w-100">
+                            <i class="fas fa-plus me-2"></i>
+                            Create Journal Entry
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="{% url 'accounts:budget_create' %}" class="btn btn-success w-100">
+                            <i class="fas fa-dollar-sign me-2"></i>
+                            Create Budget
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="{% url 'accounts:trial_balance' %}" class="btn btn-warning w-100">
+                            <i class="fas fa-balance-scale me-2"></i>
+                            Trial Balance
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="{% url 'accounts:profit_loss' %}" class="btn btn-info w-100">
+                            <i class="fas fa-chart-line me-2"></i>
+                            P&L Statement
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
